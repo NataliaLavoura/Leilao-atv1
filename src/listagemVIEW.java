@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class listagemVIEW extends javax.swing.JFrame {
@@ -125,15 +126,49 @@ public class listagemVIEW extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVenderActionPerformed
-        String id = id_produto_venda.getText();
-            
-        //produtosdao.venderProduto(Integer.parseInt(id));
-        listarProdutos();
+        int resposta = JOptionPane.showOptionDialog(null,
+                "Deseja prosseguir com a Venda?",
+                "Atenção",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"SIM", "NÃO"}, "Não");
+
+        if (resposta == 0) {
+
+            int id = Integer.parseInt(id_produto_venda.getText());
+
+            boolean status = conexao.connectDB();
+
+            if (status == false) {
+
+                JOptionPane.showMessageDialog(null,
+                        "Erro ao conectar com o Banco de dados", "Banco Dados",
+                        JOptionPane.ERROR_MESSAGE);
+
+            } else {
+
+                int retorno = produtosDAO.venderProduto(id);
+
+                if (retorno == 1) {
+
+                    JOptionPane.showMessageDialog(null, "Produto com status Vendido!",
+                            "Confirmação", JOptionPane.INFORMATION_MESSAGE);
+
+                }
+                conexao.desconectarDB();
+
+                id_produto_venda.setText("");
+                listarProdutos();
+
+            }
+
+        }
     }//GEN-LAST:event_btnVenderActionPerformed
 
     private void btnVendasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVendasActionPerformed
-        //vendasVIEW vendas = new vendasVIEW(); 
-        //vendas.setVisible(true);
+        VendasView vendas = new VendasView();
+        vendas.setVisible(true);
     }//GEN-LAST:event_btnVendasActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
@@ -187,8 +222,7 @@ public class listagemVIEW extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable listaProdutos;
     // End of variables declaration//GEN-END:variables
-
-    private void listarProdutos() {
+	private void listarProdutos() {
 
         try {
 
@@ -211,7 +245,21 @@ public class listagemVIEW extends javax.swing.JFrame {
             }
         } catch (Exception e) {
 
-            System.out.println("Erro: " + e.getMessage());
+            System.out.println("Erro List: " + e.getMessage());
+        }
+
+    }
+
+    public void itemSelecionado() {
+
+        int selecteRow = listaProdutos.getSelectedRow();
+
+        if (selecteRow >= 0) {
+
+            String id = listaProdutos.getValueAt(selecteRow, 0).toString();
+
+            id_produto_venda.setText(id);
+
         }
 
     }
